@@ -89,15 +89,14 @@ public class FundamentalsTest {
      */
     @Test
     public void testEntity() throws IOException {
+        ServerUtils.runTestServer();
         CloseableHttpClient client = HttpClients.createDefault();
         HttpGet get = new HttpGet("http://localhost:8080");
-        CloseableHttpResponse response = client.execute(get);
-        try {
+        try (CloseableHttpResponse response = client.execute(get)) {
             HttpEntity entity = response.getEntity();
             String result = EntityUtils.toString(entity);
-            System.out.println(result);
-        } finally {
-            response.close();
+            Assert.assertEquals("<h1>welcome</h1>", result);
         }
+        ServerUtils.stopServer();
     }
 }

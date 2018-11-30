@@ -42,10 +42,4 @@ public class ServerUtils {
             serverThread = null;
         }
     }
-
-    public static void main(String[] args) throws InterruptedException {
-        runTestServer();
-        Thread.sleep(8000);
-        stopServer();
-    }
 }
