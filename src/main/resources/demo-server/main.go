@@ -20,5 +20,8 @@ func main() {
 	app.Get("/hello", func(ctx iris.Context) {
 		ctx.JSON(iris.Map{"message": "Hello iris!"})
 	})
+	app.Get("/red", func(ctx iris.Context) {
+		ctx.Redirect("/ping")
+	})
 	app.Run(iris.Addr(":8080"), iris.WithoutServerError(iris.ErrServerClosed))
 }
