@@ -1,22 +1,25 @@
-package site.zido.httpclient;
+package site.zido.httpclient.cha1;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
+import org.apache.http.*;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import site.zido.httpclient.ServerUtils;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 基础实用类测试
@@ -73,11 +76,11 @@ public class FundamentalsTest {
         response.addHeader("Set-Cookie", "c1=a; path=/; domain=localhost");
         response.addHeader("Set-Cookie", "c2=b; path=\"/\", c2=c; domain=localhost");
         final Header header1 = response.getFirstHeader("Set-Cookie");
-        Assert.assertEquals("Set-Cookie: c1=a; path=/; domain=localhost",header1.toString());
+        Assert.assertEquals("Set-Cookie: c1=a; path=/; domain=localhost", header1.toString());
         final Header lastHeader = response.getLastHeader("Set-Cookie");
-        Assert.assertEquals("Set-Cookie: c2=b; path=\"/\", c2=c; domain=localhost",lastHeader.toString());
+        Assert.assertEquals("Set-Cookie: c2=b; path=\"/\", c2=c; domain=localhost", lastHeader.toString());
         final Header[] headers = response.getHeaders("Set-Cookie");
-        Assert.assertEquals(2,headers.length);
+        Assert.assertEquals(2, headers.length);
     }
 
     /**
@@ -97,6 +100,54 @@ public class FundamentalsTest {
             String result = EntityUtils.toString(entity);
             Assert.assertEquals("<h1>welcome</h1>", result);
         }
+        ServerUtils.stopServer();
+    }
+
+    /**
+     * 模拟提交Html表单
+     */
+    @Test
+    public void testBuildForm() {
+        ServerUtils.runTestServer();
+        List<NameValuePair> formParams = new ArrayList<>();
+        formParams.add(new BasicNameValuePair("name", "zido"));
+        formParams.add(new BasicNameValuePair("pwd", "123456"));
+        UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formParams, Consts.UTF_8);
+        HttpPost post = new HttpPost("http://localhost:8080/sendForm");
+        post.setEntity(entity);
+        final CloseableHttpClient httpClient = HttpClients.createDefault();
+        try (final CloseableHttpResponse response = httpClient.execute(post)) {
+            final HttpEntity result = response.getEntity();
+            Assert.assertEquals("yes", EntityUtils.toString(result));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                httpClient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        ServerUtils.stopServer();
+    }
+
+    /**
+     * 最简单、最方便的处理响应的方式是使用 ResponseHandler 接口，它包含了 handleResponse(HttpResponse response) 方法。
+     * 这个方法彻底的解决了用户关于连接管理的担忧。使用 ResponseHandler 时，HttpClient 会自动处理连接，无论执行请求成功
+     * 或是发生了异常，都确保连接释放到连接管理者。
+     */
+    @Test
+    public void testResponseHandler() throws IOException {
+        ServerUtils.runTestServer();
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpGet get = new HttpGet("http://localhost:8080/ping");
+        final String result = httpClient.execute(get, httpResponse -> {
+            StatusLine line = httpResponse.getStatusLine();
+            HttpEntity entity = httpResponse.getEntity();
+            Assert.assertEquals(200, line.getStatusCode());
+            return EntityUtils.toString(entity);
+        });
+        Assert.assertEquals("pong", result);
         ServerUtils.stopServer();
     }
 }

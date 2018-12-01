@@ -3,12 +3,15 @@ package site.zido.httpclient;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class ServerUtils {
     private static Thread serverThread;
     private static Process exec;
 
     public static void runTestServer() {
+        CountDownLatch latch = new CountDownLatch(1);
         final String property = System.getProperty("os.name");
         String serverBin;
         if (property.startsWith("Mac OS")) {
@@ -26,12 +29,22 @@ public class ServerUtils {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     System.out.println(line);
+                    if ("Application started. Press CTRL+C to shut down.".equals(line)) {
+                        latch.countDown();
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
         serverThread.start();
+        try {
+            if (!latch.await(5, TimeUnit.SECONDS)) {
+                throw new RuntimeException("server start up time out");
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException("thread interrupted");
+        }
     }
 
     public static void stopServer() {

@@ -1,4 +1,4 @@
-package site.zido.httpclient;
+package site.zido.httpclient.cha1;
 
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;

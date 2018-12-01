@@ -23,5 +23,14 @@ func main() {
 	app.Get("/red", func(ctx iris.Context) {
 		ctx.Redirect("/ping")
 	})
+	app.Post("/sendForm", func(ctx iris.Context) {
+		name := ctx.FormValue("name")
+		pwd := ctx.FormValue("pwd")
+		if name == "zido" && pwd == "123456" {
+			ctx.WriteString("yes")
+		} else {
+			ctx.WriteString("no")
+		}
+	})
 	app.Run(iris.Addr(":8080"), iris.WithoutServerError(iris.ErrServerClosed))
 }

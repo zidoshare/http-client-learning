@@ -1,4 +1,4 @@
-package site.zido.httpclient;
+package site.zido.httpclient.cha1;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -12,6 +12,7 @@ import org.apache.http.protocol.HttpContext;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+import site.zido.httpclient.ServerUtils;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
