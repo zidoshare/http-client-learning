@@ -2,6 +2,8 @@
 
 > 为深入学习httpClient而创建的学习项目,httpClient版本为(4.5.x)
 
+所有想关类与代码均放在[test](./src/test/java)目录下，为了方便运行。main目录下只有简单的编写的一些工具。
+
 项目下包含[demo-server](./src/main/resources/demo-server)文件夹，是使用go语言编写的简单服务器。主要是为了配合
 httpClient去请求服务器，以得到我想要的内容
 
