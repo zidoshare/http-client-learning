@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/middleware/logger"
 	"github.com/kataras/iris/middleware/recover"
@@ -28,6 +31,20 @@ func main() {
 		pwd := ctx.FormValue("pwd")
 		if name == "zido" && pwd == "123456" {
 			ctx.WriteString("yes")
+		} else {
+			ctx.WriteString("no")
+		}
+	})
+	app.Get("/login", func(ctx iris.Context) {
+		ctx.SetCookieKV("id", "123456", func(cookie *http.Cookie) {
+			cookie.Path = "/user"
+		})
+	})
+	app.Get("/user/get", func(ctx iris.Context) {
+		session := ctx.GetCookie("id")
+		fmt.Printf("id is %s\n", session)
+		if session == "123456" {
+			ctx.WriteString("ok")
 		} else {
 			ctx.WriteString("no")
 		}
